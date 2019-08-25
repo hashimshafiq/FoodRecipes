@@ -5,51 +5,70 @@ import android.view.View;
 
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.hashimshafiq.foodrecipies.adapters.RecipeRecyclerAdapter;
+import com.hashimshafiq.foodrecipies.listeners.OnRecipeListener;
 import com.hashimshafiq.foodrecipies.models.Recipe;
 import com.hashimshafiq.foodrecipies.viewmodels.RecipeListViewModel;
 
 import java.util.List;
 
-public class RecipeListActivity extends BaseActivity {
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
+public class RecipeListActivity extends BaseActivity implements OnRecipeListener {
+
+    @BindView(R.id.recipe_list)
+    RecyclerView mRecyclerView;
 
     RecipeListViewModel mRecipeListViewModel;
+    private RecipeRecyclerAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_list);
-
+        ButterKnife.bind(this);
         mRecipeListViewModel = ViewModelProviders.of(this).get(RecipeListViewModel.class);
+        initRecyclerView();
+
         subscribeObserver();
 
-        findViewById(R.id.but).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                testRequest();
-            }
-        });
+        testRequest();
     }
 
     private void subscribeObserver(){
-        mRecipeListViewModel.getRecipes().observe(this, new Observer<List<Recipe>>() {
-            @Override
-            public void onChanged(List<Recipe> recipes) {
-                if(recipes != null){
-                    for (Recipe recipe:recipes) {
-                        System.out.println(recipe.getTitle());
-                    }
-                }
+        mRecipeListViewModel.getRecipes().observe(this, recipes -> {
+            if(recipes != null){
+                mAdapter.setRecipes(recipes);
             }
         });
     }
 
     private void testRequest(){
-        searchRecipeApi("chicken",1);
+        searchRecipeApi("chicken breast",1);
 
     }
 
     public void searchRecipeApi(String query, int pageNumber){
         mRecipeListViewModel.searchRecipeApi(query,pageNumber);
+    }
+
+    private void initRecyclerView(){
+        mAdapter = new RecipeRecyclerAdapter(this);
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    @Override
+    public void onRecipeClick(int position) {
+
+    }
+
+    @Override
+    public void onCategoryClick(String category) {
+
     }
 }
