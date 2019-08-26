@@ -1,19 +1,15 @@
 package com.hashimshafiq.foodrecipies;
 
 import android.os.Bundle;
-import android.view.View;
 
-import androidx.lifecycle.Observer;
+import androidx.appcompat.widget.SearchView;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.hashimshafiq.foodrecipies.adapters.RecipeRecyclerAdapter;
 import com.hashimshafiq.foodrecipies.listeners.OnRecipeListener;
-import com.hashimshafiq.foodrecipies.models.Recipe;
 import com.hashimshafiq.foodrecipies.viewmodels.RecipeListViewModel;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -22,6 +18,9 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
 
     @BindView(R.id.recipe_list)
     RecyclerView mRecyclerView;
+    @BindView(R.id.search_view)
+    androidx.appcompat.widget.SearchView mSearchView;
+
 
     RecipeListViewModel mRecipeListViewModel;
     private RecipeRecyclerAdapter mAdapter;
@@ -36,7 +35,12 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
 
         subscribeObserver();
 
-        testRequest();
+        initSearchView();
+
+        if(!mRecipeListViewModel.IsViewingRecipes()){
+            displaySearchCategories();
+        }
+
     }
 
     private void subscribeObserver(){
@@ -69,6 +73,28 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
 
     @Override
     public void onCategoryClick(String category) {
+        mAdapter.displayLoading();
+        mRecipeListViewModel.searchRecipeApi(category,1);
+    }
 
+    private void initSearchView(){
+       mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+           @Override
+           public boolean onQueryTextSubmit(String query) {
+               mAdapter.displayLoading();
+               mRecipeListViewModel.searchRecipeApi(query,1);
+               return false;
+           }
+
+           @Override
+           public boolean onQueryTextChange(String newText) {
+               return false;
+           }
+       });
+    }
+
+    private void displaySearchCategories(){
+        mRecipeListViewModel.setIsViewingRecipes(false);
+        mAdapter.displaySearchCategories();
     }
 }
