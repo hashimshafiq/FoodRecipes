@@ -43,6 +43,28 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
         initSearchView();
         setSupportActionBar(findViewById(R.id.toolbar));
 
+        subscribeObservers();
+
+    }
+
+    public void subscribeObservers(){
+        mRecipeListViewModel.getViewState().observe(this, viewState -> {
+            if(viewState!=null){
+                switch (viewState){
+                    case RECIPES:
+                        // show list of recipes
+                        return;
+                    case CATEGORIES:
+                        displaySearchCategories();
+                        return;
+
+                }
+            }
+        });
+    }
+
+    private void displaySearchCategories() {
+        mAdapter.displaySearchCategories();
     }
 
 
