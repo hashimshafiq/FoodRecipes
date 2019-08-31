@@ -1,44 +1,14 @@
 package com.hashimshafiq.foodrecipies.viewmodels;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.ViewModel;
+import android.app.Application;
 
-import com.hashimshafiq.foodrecipies.models.Recipe;
-import com.hashimshafiq.foodrecipies.respositories.RecipeRepository;
+import androidx.lifecycle.AndroidViewModel;
 
-public class RecipeViewModel extends ViewModel {
+public class RecipeViewModel extends AndroidViewModel {
 
-    private RecipeRepository mRecipeRepository;
-    private String mRecipeId;
-    private boolean mDidRetrieveRecipe;
 
-    public RecipeViewModel(){
-        mRecipeRepository = RecipeRepository.getInstance();
-        mDidRetrieveRecipe = false;
+    public RecipeViewModel(Application application){
+        super(application);
     }
 
-    public LiveData<Recipe> getRecipe(){
-        return mRecipeRepository.getRecipe();
-    }
-
-    public void SearchRecipeById(String recipeId){
-        mRecipeId = recipeId;
-        mRecipeRepository.searchRecipeById(recipeId);
-    }
-
-    public String getRecipeId() {
-        return mRecipeId;
-    }
-
-    public LiveData<Boolean> isRecipeRequestTimedOut(){
-        return mRecipeRepository.isRecipeRequestTimedOut();
-    }
-
-    public boolean isRetrievedRecipe() {
-        return mDidRetrieveRecipe;
-    }
-
-    public void setRetrievedRecipe(boolean mDidRetrieveRecipe) {
-        this.mDidRetrieveRecipe = mDidRetrieveRecipe;
-    }
 }

@@ -22,8 +22,6 @@ import com.hashimshafiq.foodrecipies.viewholders.SearchExhaustedViewHolder;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.ButterKnife;
-
 public class RecipeRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final int RECIPE_TYPE = 1;
