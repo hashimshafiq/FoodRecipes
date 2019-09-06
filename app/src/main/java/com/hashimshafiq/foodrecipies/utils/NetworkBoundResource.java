@@ -6,7 +6,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.Observer;
 
 import com.hashimshafiq.foodrecipies.AppExecutors;
 import com.hashimshafiq.foodrecipies.requests.ApiResponse;
