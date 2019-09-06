@@ -1,7 +1,11 @@
 package com.hashimshafiq.foodrecipies;
 
+import android.os.Handler;
+import android.os.Looper;
+
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+
 
 public class AppExecutors {
 
@@ -14,13 +18,25 @@ public class AppExecutors {
         return instance;
     }
 
+    public Executor getDiskIO(){
+        return mDiskIO;
+    }
 
-    private AppExecutors(){}
+    public Executor mainThread(){
+        return mMainThreadExecutor;
+    }
 
-    private final ScheduledExecutorService mNetworkIO = Executors.newScheduledThreadPool(3);
+    private final Executor mDiskIO = Executors.newSingleThreadExecutor();
 
-    public ScheduledExecutorService getNetworkIO(){
-        return mNetworkIO;
+    private final Executor mMainThreadExecutor = new MainThreadExecutor();
+
+    private static class MainThreadExecutor implements Executor{
+
+        private Handler mainThreadHandler = new Handler(Looper.getMainLooper());
+        @Override
+        public void execute(Runnable command) {
+            mainThreadHandler.post(command);
+        }
     }
 
 

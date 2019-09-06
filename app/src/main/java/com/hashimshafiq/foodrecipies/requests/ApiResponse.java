@@ -1,7 +1,5 @@
 package com.hashimshafiq.foodrecipies.requests;
 
-import java.io.IOException;
-
 import retrofit2.Response;
 
 public class ApiResponse<T> {
