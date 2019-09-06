@@ -11,7 +11,9 @@ import com.hashimshafiq.foodrecipies.models.Recipe;
 import com.hashimshafiq.foodrecipies.persistence.RecipeDao;
 import com.hashimshafiq.foodrecipies.persistence.RecipesDatabase;
 import com.hashimshafiq.foodrecipies.requests.ApiResponse;
+import com.hashimshafiq.foodrecipies.requests.ServiceGenerator;
 import com.hashimshafiq.foodrecipies.requests.responses.RecipesSearchResponse;
+import com.hashimshafiq.foodrecipies.utils.Constants;
 import com.hashimshafiq.foodrecipies.utils.NetworkBoundResource;
 import com.hashimshafiq.foodrecipies.utils.Resource;
 
@@ -38,6 +40,21 @@ public class RecipeRepository {
         return new NetworkBoundResource<List<Recipe>, RecipesSearchResponse>(AppExecutors.getInstance()){
             @Override
             protected void saveCallResult(@NonNull RecipesSearchResponse item) {
+                if(item.getRecipes() != null){
+
+                    Recipe[] recipes = new Recipe[item.getRecipes().size()];
+                    int index = 0;
+                    for( long rowid : recipeDao.insertRecipes(item.getRecipes().toArray(recipes))){
+                        if(rowid == -1){
+                            recipeDao.updateRecipe(recipes[index].getRecipe_id(),recipes[index].getTitle(),recipes[index].getPublisher(),recipes[index].getImage_url(),recipes[index].getSocial_rank());
+                        }
+                        index++;
+                    }
+
+
+
+
+                }
 
             }
 
@@ -54,7 +71,7 @@ public class RecipeRepository {
 
             @Override
             protected LiveData<ApiResponse<RecipesSearchResponse>> createCall() {
-                return null;
+                return ServiceGenerator.getRecipeApi().searchRecipe(Constants.API_KEY,query,String.valueOf(pageNumber));
             }
         }.getAsLiveData();
 

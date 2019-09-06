@@ -1,6 +1,7 @@
 package com.hashimshafiq.foodrecipies.requests;
 
 import com.hashimshafiq.foodrecipies.utils.Constants;
+import com.hashimshafiq.foodrecipies.utils.LiveDataCallAdapterFactory;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -9,6 +10,7 @@ public class ServiceGenerator {
 
     private static Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
             .baseUrl(Constants.BASE_URL)
+            .addCallAdapterFactory(new LiveDataCallAdapterFactory())
             .addConverterFactory(GsonConverterFactory.create());
 
 

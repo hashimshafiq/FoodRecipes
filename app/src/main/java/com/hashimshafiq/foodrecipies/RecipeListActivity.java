@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
@@ -15,8 +16,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.hashimshafiq.foodrecipies.adapters.RecipeRecyclerAdapter;
 import com.hashimshafiq.foodrecipies.listeners.OnRecipeListener;
+import com.hashimshafiq.foodrecipies.models.Recipe;
+import com.hashimshafiq.foodrecipies.utils.Resource;
 import com.hashimshafiq.foodrecipies.utils.VerticalSpacingItemDecorator;
 import com.hashimshafiq.foodrecipies.viewmodels.RecipeListViewModel;
+
+import java.util.Arrays;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -48,6 +54,16 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
     }
 
     public void subscribeObservers(){
+
+        mRecipeListViewModel.getRecipes().observe(this, listResource -> {
+            if(listResource != null){
+                if(listResource.data != null){
+                   Toast.makeText(getApplicationContext(),listResource.data.get(0).getTitle(),Toast.LENGTH_SHORT).show();
+
+                }
+            }
+        });
+
         mRecipeListViewModel.getViewState().observe(this, viewState -> {
             if(viewState!=null){
                 switch (viewState){
@@ -61,6 +77,12 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
                 }
             }
         });
+    }
+
+    private void searchRecipeApi(String query){
+        Log.d(TAG, "searchRecipeApi: "+query);
+        mRecipeListViewModel.searchRecipeApi(query,1);
+
     }
 
     private void displaySearchCategories() {
@@ -86,14 +108,15 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
 
     @Override
     public void onCategoryClick(String category) {
-
+        Log.d(TAG, "onCategoryClick: "+category);
+        searchRecipeApi(category);
     }
 
     private void initSearchView(){
        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
            @Override
            public boolean onQueryTextSubmit(String query) {
-
+                searchRecipeApi(query);
                return false;
            }
 
