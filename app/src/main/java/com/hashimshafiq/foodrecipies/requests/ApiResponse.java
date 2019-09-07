@@ -1,5 +1,9 @@
 package com.hashimshafiq.foodrecipies.requests;
 
+import com.hashimshafiq.foodrecipies.requests.responses.CheckApiRecipeKey;
+import com.hashimshafiq.foodrecipies.requests.responses.RecipeResponse;
+import com.hashimshafiq.foodrecipies.requests.responses.RecipesSearchResponse;
+
 import retrofit2.Response;
 
 public class ApiResponse<T> {
@@ -11,6 +15,20 @@ public class ApiResponse<T> {
     public ApiResponse<T> create(Response<T> response){
         if(response.isSuccessful()){
             T body = response.body();
+
+            if(body instanceof RecipesSearchResponse){
+                if(!CheckApiRecipeKey.isRecipeApiKeyValid((RecipesSearchResponse)body)){
+                    String errorMessage = "Api key is invalid or expired";
+                    return new ApiErrorResponse<>(errorMessage);
+                }
+            }
+
+            if(body instanceof RecipeResponse){
+                if(!CheckApiRecipeKey.isRecipeApiKeyValid((RecipeResponse)body)){
+                    String errorMessage = "Api key is invalid or expired";
+                    return new ApiErrorResponse<>(errorMessage);
+                }
+            }
 
             if(body == null || response.code() == 204){
                 return  new ApiEmptyResponse<>();

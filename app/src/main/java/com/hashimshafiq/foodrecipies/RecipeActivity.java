@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProviders;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.hashimshafiq.foodrecipies.models.Recipe;
+import com.hashimshafiq.foodrecipies.utils.Resource;
 import com.hashimshafiq.foodrecipies.viewmodels.RecipeViewModel;
 
 import butterknife.BindView;
@@ -54,7 +55,87 @@ public class RecipeActivity  extends BaseActivity{
     private void getIncomingIntent(){
         if(getIntent().hasExtra("recipe")){
             Recipe recipe = getIntent().getParcelableExtra("recipe");
+            subscribeObserver(recipe.getRecipe_id());
 
+        }
+    }
+
+    private void subscribeObserver(String recipeId){
+        mRecipeViewModel.searchRecipesApi(recipeId).observe(this, new Observer<Resource<Recipe>>() {
+            @Override
+            public void onChanged(Resource<Recipe> recipeResource) {
+                if(recipeResource != null){
+                    if(recipeResource.data != null){
+                        switch (recipeResource.status){
+
+                            case LOADING:{
+                                showProgressBar(true);
+                                break;
+                            }
+
+                            case ERROR:{
+                                showParent();
+                                showProgressBar(false);
+                                setRecipeProperties(recipeResource.data);
+                                break;
+                            }
+
+                            case SUCCESS:{
+                                showParent();
+                                showProgressBar(false);
+                                setRecipeProperties(recipeResource.data);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+
+    private void setRecipeProperties(Recipe recipe){
+        if(recipe != null){
+            RequestOptions options = new RequestOptions()
+                    .placeholder(R.drawable.ic_launcher_background)
+                    .error(R.drawable.ic_launcher_background);
+
+            Glide.with(this)
+                    .setDefaultRequestOptions(options)
+                    .load(recipe.getImage_url())
+                    .into(mRecipeImage);
+
+            mRecipeTitle.setText(recipe.getTitle());
+            mRecipeRank.setText(String.valueOf(Math.round(recipe.getSocial_rank())));
+
+            setIngredients(recipe);
+        }
+    }
+
+    private void setIngredients(Recipe recipe){
+        mRecipeIngredientsContainer.removeAllViews();
+
+        if(recipe.getIngredients() != null){
+            for(String ingredient: recipe.getIngredients()){
+                TextView textView = new TextView(this);
+                textView.setText(ingredient);
+                textView.setTextSize(15);
+                textView.setLayoutParams(
+                        new LinearLayout.LayoutParams(
+                                ViewGroup.LayoutParams.WRAP_CONTENT,
+                                ViewGroup.LayoutParams.WRAP_CONTENT));
+                mRecipeIngredientsContainer.addView(textView);
+            }
+        }
+        else{
+            TextView textView = new TextView(this);
+            textView.setText("Error retrieving ingredients.\nCheck network connection.");
+            textView.setTextSize(15);
+            textView.setLayoutParams(
+                    new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT));
+            mRecipeIngredientsContainer.addView(textView);
         }
     }
 

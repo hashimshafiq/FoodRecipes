@@ -11,6 +11,14 @@ public class RecipeResponse {
     @Expose()
     private Recipe recipe;
 
+    @SerializedName("error")
+    @Expose
+    private String error;
+
+    public String getError() {
+        return error;
+    }
+
     public Recipe getRecipe(){
         return recipe;
     }
@@ -19,6 +27,7 @@ public class RecipeResponse {
     public String toString() {
         return "RecipeResponse{" +
                 "recipe=" + recipe +
+                ", error='" + error + '\'' +
                 '}';
     }
 }

@@ -16,8 +16,16 @@ public class RecipesSearchResponse {
     @Expose
     private List<Recipe> recipes;
 
+    @SerializedName("error")
+    @Expose
+    private String error;
+
     public int getCount() {
         return count;
+    }
+
+    public String getError() {
+        return error;
     }
 
     public List<Recipe> getRecipes() {
@@ -29,6 +37,7 @@ public class RecipesSearchResponse {
         return "RecipesSearchResponse{" +
                 "count=" + count +
                 ", recipes=" + recipes +
+                ", error='" + error + '\'' +
                 '}';
     }
 }

@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.util.ViewPreloadSizeProvider;
 import com.hashimshafiq.foodrecipies.R;
 import com.hashimshafiq.foodrecipies.listeners.OnRecipeListener;
 import com.hashimshafiq.foodrecipies.models.Recipe;
@@ -32,12 +33,14 @@ public class RecipeViewHolder extends RecyclerView.ViewHolder {
 
     OnRecipeListener onRecipeListener;
     RequestManager requestManager;
+    ViewPreloadSizeProvider viewPreloadSizeProvider;
 
-    public RecipeViewHolder(@NonNull View itemView, OnRecipeListener onRecipeListener, RequestManager requestManager) {
+    public RecipeViewHolder(@NonNull View itemView, OnRecipeListener onRecipeListener, RequestManager requestManager,ViewPreloadSizeProvider viewPreloadSizeProvider) {
         super(itemView);
         ButterKnife.bind(this,itemView);
         this.onRecipeListener = onRecipeListener;
         this.requestManager = requestManager;
+        this.viewPreloadSizeProvider = viewPreloadSizeProvider;
     }
 
     @OnClick(R.id.root) void onClickRecipe(){
@@ -54,6 +57,8 @@ public class RecipeViewHolder extends RecyclerView.ViewHolder {
         mRecipeTitle.setText(recipe.getTitle());
         mRecipePublisher.setText(recipe.getPublisher());
         mRecipeSocialScore.setText(String.valueOf(Math.round(recipe.getSocial_rank())));
+
+        viewPreloadSizeProvider.setView(mRecipeImageView);
     }
 
 
