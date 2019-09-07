@@ -14,6 +14,9 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.request.RequestOptions;
 import com.hashimshafiq.foodrecipies.adapters.RecipeRecyclerAdapter;
 import com.hashimshafiq.foodrecipies.listeners.OnRecipeListener;
 import com.hashimshafiq.foodrecipies.models.Recipe;
@@ -27,6 +30,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static com.hashimshafiq.foodrecipies.viewmodels.RecipeListViewModel.QUERY_EXHAUSTED;
 
 public class RecipeListActivity extends BaseActivity implements OnRecipeListener {
 
@@ -60,7 +65,35 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
             if(listResource != null){
                 if(listResource.data != null){
 
-                    Testing.printRecipes(listResource.data,"data");
+                   switch (listResource.status){
+
+                       case LOADING:{
+                           if(mRecipeListViewModel.getPageNumber()>1){
+                               mAdapter.displayLoading();
+                           }else{
+                               mAdapter.displayOnlyLoading();
+                           }
+                           break;
+                       }
+                       case ERROR:{
+                            mAdapter.hideLoading();
+                            mAdapter.setRecipes(listResource.data);
+                            Toast.makeText(getApplicationContext(),listResource.message,Toast.LENGTH_SHORT).show();
+                            if(listResource.message.equals(QUERY_EXHAUSTED)){
+                                mAdapter.setQueryExhausted();
+                            }
+                           break;
+                       }
+
+                       case SUCCESS:{
+                            mAdapter.hideLoading();
+                            mAdapter.setRecipes(listResource.data);
+
+                           break;
+                       }
+
+
+                   }
 
                 }
             }
@@ -93,7 +126,7 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
 
 
     private void initRecyclerView(){
-        mAdapter = new RecipeRecyclerAdapter(this);
+        mAdapter = new RecipeRecyclerAdapter(this,initGlide());
         mRecyclerView.addItemDecoration(new VerticalSpacingItemDecorator(30));
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -127,6 +160,11 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
                return false;
            }
        });
+    }
+
+    private RequestManager initGlide(){
+        RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.ic_launcher_background).error(R.drawable.ic_launcher_background);
+        return Glide.with(this).setDefaultRequestOptions(requestOptions);
     }
 
 

@@ -7,8 +7,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.request.RequestOptions;
 import com.hashimshafiq.foodrecipies.R;
 import com.hashimshafiq.foodrecipies.listeners.OnRecipeListener;
+import com.hashimshafiq.foodrecipies.models.Recipe;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -27,15 +31,29 @@ public class RecipeViewHolder extends RecyclerView.ViewHolder {
     public TextView mRecipeSocialScore;
 
     OnRecipeListener onRecipeListener;
+    RequestManager requestManager;
 
-    public RecipeViewHolder(@NonNull View itemView, OnRecipeListener onRecipeListener) {
+    public RecipeViewHolder(@NonNull View itemView, OnRecipeListener onRecipeListener, RequestManager requestManager) {
         super(itemView);
         ButterKnife.bind(this,itemView);
         this.onRecipeListener = onRecipeListener;
+        this.requestManager = requestManager;
     }
 
     @OnClick(R.id.root) void onClickRecipe(){
         onRecipeListener.onRecipeClick(getAdapterPosition());
+    }
+
+    public void onBind(Recipe recipe){
+
+
+        requestManager
+                .load(recipe.getImage_url())
+                .into(mRecipeImageView);
+
+        mRecipeTitle.setText(recipe.getTitle());
+        mRecipePublisher.setText(recipe.getPublisher());
+        mRecipeSocialScore.setText(String.valueOf(Math.round(recipe.getSocial_rank())));
     }
 
 

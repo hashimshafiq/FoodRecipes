@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import com.hashimshafiq.foodrecipies.models.Recipe;
 import com.hashimshafiq.foodrecipies.respositories.RecipeRepository;
@@ -16,13 +17,21 @@ import java.util.List;
 
 public class RecipeListViewModel extends AndroidViewModel {
 
-    public enum ViewState {CATEGORIES,RECIPES};
+    public enum ViewState {CATEGORIES,RECIPES}
 
     private MutableLiveData<ViewState> viewState;
     private MediatorLiveData<Resource<List<Recipe>>> recipes = new MediatorLiveData<>();
     private RecipeRepository recipeRepository;
 
+    // extra query var
+    private int pageNumber;
+    private String query;
+    private boolean isPerformingQuery;
+    private boolean isQueryEXhausted;
+
+
     private static final String TAG = "RecipeListViewModel";
+    public static final String QUERY_EXHAUSTED = "No more results..";
 
     public RecipeListViewModel(Application application) {
         super(application);
@@ -45,12 +54,52 @@ public class RecipeListViewModel extends AndroidViewModel {
         return recipes;
     }
 
-    public void searchRecipeApi(String qury, int pageNumber){
-        Log.d(TAG, "searchRecipeApi: "+qury);
-        final LiveData<Resource<List<Recipe>>> repositorySource = recipeRepository.searchRecipeApi(qury,pageNumber);
-        recipes.addSource(repositorySource, listResource -> recipes.setValue(listResource));
+    public void searchRecipeApi(String query, int pageNumber){
+        if(pageNumber == 0){
+            pageNumber = 1;
+        }
+        this.pageNumber = pageNumber;
+        this.query = query;
+        executeQuery();
+
+    }
+
+    private void executeQuery(){
+        this.isPerformingQuery = true;
+        viewState.setValue(ViewState.RECIPES);
+        final LiveData<Resource<List<Recipe>>> repositorySource = recipeRepository.searchRecipeApi(query,pageNumber);
+        recipes.addSource(repositorySource, new Observer<Resource<List<Recipe>>>() {
+            @Override
+            public void onChanged(Resource<List<Recipe>> listResource) {
+                if(listResource != null){
+                    recipes.setValue(listResource);
+                    if(listResource.status == Resource.Status.SUCCESS){
+                        isPerformingQuery = false;
+                        if(listResource.data != null){
+                            if(listResource.data.size()==0){
+                                recipes.setValue(new Resource<List<Recipe>>(
+                                        Resource.Status.ERROR,
+                                        listResource.data,
+                                        QUERY_EXHAUSTED
+
+                                ));
+                            }
+                        }
+                        recipes.removeSource(repositorySource);
+                    }else if(listResource.status == Resource.Status.ERROR){
+                        isPerformingQuery = false;
+                        recipes.removeSource(repositorySource);
+                    }
+
+                }else{
+                    recipes.removeSource(repositorySource);
+                }
+            }
+        });
     }
 
 
-
+    public int getPageNumber() {
+        return pageNumber;
+    }
 }
