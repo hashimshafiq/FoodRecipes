@@ -29,29 +29,27 @@ public class RecipeRepository {
     }
 
     public static RecipeRepository getInstance(Context context) {
-        if(instance == null){
+        if (instance == null) {
             instance = new RecipeRepository(context);
         }
 
         return instance;
     }
 
-    public LiveData<Resource<List<Recipe>>> searchRecipeApi(String query, int pageNumber){
-        return new NetworkBoundResource<List<Recipe>, RecipesSearchResponse>(AppExecutors.getInstance()){
+    public LiveData<Resource<List<Recipe>>> searchRecipeApi(String query, int pageNumber) {
+        return new NetworkBoundResource<List<Recipe>, RecipesSearchResponse>(AppExecutors.getInstance()) {
             @Override
-            protected void saveCallResult(@NonNull RecipesSearchResponse item) {
-                if(item.getRecipes() != null){
+            public void saveCallResult(@NonNull RecipesSearchResponse item) {
+                if (item.getRecipes() != null) {
 
                     Recipe[] recipes = new Recipe[item.getRecipes().size()];
                     int index = 0;
-                    for( long rowid : recipeDao.insertRecipes(item.getRecipes().toArray(recipes))){
-                        if(rowid == -1){
-                            recipeDao.updateRecipe(recipes[index].getRecipe_id(),recipes[index].getTitle(),recipes[index].getPublisher(),recipes[index].getImage_url(),recipes[index].getSocial_rank());
+                    for (long rowid : recipeDao.insertRecipes(item.getRecipes().toArray(recipes))) {
+                        if (rowid == -1) {
+                            recipeDao.updateRecipe(recipes[index].getRecipe_id(), recipes[index].getTitle(), recipes[index].getPublisher(), recipes[index].getImage_url(), recipes[index].getSocial_rank());
                         }
                         index++;
                     }
-
-
 
 
                 }
@@ -59,21 +57,22 @@ public class RecipeRepository {
             }
 
             @Override
-            protected boolean shouldFetch(@Nullable List<Recipe> data) {
+            public boolean shouldFetch(@Nullable List<Recipe> data) {
                 return true;
             }
 
             @Override
-            protected LiveData<List<Recipe>> loadFromDb() {
+            public LiveData<List<Recipe>> loadFromDb() {
 
-                return recipeDao.searchRecipe(query,pageNumber);
+                return recipeDao.searchRecipe(query, pageNumber);
             }
 
             @Override
-            protected LiveData<ApiResponse<RecipesSearchResponse>> createCall() {
-                return ServiceGenerator.getRecipeApi().searchRecipe(Constants.API_KEY,query,String.valueOf(pageNumber));
+            public LiveData<ApiResponse<RecipesSearchResponse>> createCall() {
+                return ServiceGenerator.getRecipeApi().searchRecipe(Constants.API_KEY, query, String.valueOf(pageNumber));
             }
         }.getAsLiveData();
 
     }
+
 }

@@ -18,6 +18,7 @@ import com.hashimshafiq.foodrecipies.adapters.RecipeRecyclerAdapter;
 import com.hashimshafiq.foodrecipies.listeners.OnRecipeListener;
 import com.hashimshafiq.foodrecipies.models.Recipe;
 import com.hashimshafiq.foodrecipies.utils.Resource;
+import com.hashimshafiq.foodrecipies.utils.Testing;
 import com.hashimshafiq.foodrecipies.utils.VerticalSpacingItemDecorator;
 import com.hashimshafiq.foodrecipies.viewmodels.RecipeListViewModel;
 
@@ -58,7 +59,8 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
         mRecipeListViewModel.getRecipes().observe(this, listResource -> {
             if(listResource != null){
                 if(listResource.data != null){
-                   Toast.makeText(getApplicationContext(),listResource.data.get(0).getTitle(),Toast.LENGTH_SHORT).show();
+
+                    Testing.printRecipes(listResource.data,"data");
 
                 }
             }
